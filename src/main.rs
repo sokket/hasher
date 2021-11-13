@@ -1,15 +1,29 @@
+extern crate rand;
+
+use crate::hasher::Hasher;
+
 mod hasher {
     use argon2::{self, Config as ArgonConfig};
+    use rand::{distributions::Alphanumeric, Rng}; // 0.8
 
     pub struct Hasher<'a> {
         argon_config : ArgonConfig<'a>
     }
 
-    impl Hasher {
+    impl Hasher<'_> {
         pub fn create() -> Self {
             Self {
                 argon_config: ArgonConfig::default()
             }
+        }
+
+        fn salt_gen(&self, salt_len: usize) -> String {
+            let s: String = rand::thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(salt_len)
+                .map(char::from)
+                .collect();
+            return s
         }
 
         pub fn hash(&self, password : String) -> String {
@@ -24,5 +38,5 @@ mod hasher {
 }
 
 fn main() {
-    
+
 }

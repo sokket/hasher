@@ -10,6 +10,14 @@ mod hasher {
         argon_config : ArgonConfig<'a>
     }
 
+    pub fn salt_gen(salt_len: usize) -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(salt_len)
+            .map(char::from)
+            .collect()
+    }
+
     impl Hasher<'_> {
         pub fn create() -> Self {
             Self {
@@ -17,18 +25,8 @@ mod hasher {
             }
         }
 
-        fn salt_gen(&self, salt_len: usize) -> String {
-            let s: String = rand::thread_rng()
-                .sample_iter(&Alphanumeric)
-                .take(salt_len)
-                .map(char::from)
-                .collect();
-            return s
-        }
-
         pub fn hash(&self, password : String) -> String {
-            let salt = b"randomsalt";
-            return argon2::hash_encoded(password.as_ref(), salt, &self.argon_config).unwrap();
+            return argon2::hash_encoded(password.as_ref(), salt_gen(8).as_ref(), &self.argon_config).unwrap();
         }
 
         pub fn check(&self, hash: String, password : String) -> bool {
@@ -38,5 +36,4 @@ mod hasher {
 }
 
 fn main() {
-
 }
